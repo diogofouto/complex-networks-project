@@ -10,7 +10,7 @@ class Player:
     global_bias = [[0.5, 0.5], [0.5, 0.5]]
 
     def __init__(self, arena=None, player_id=None, player_info=None, tag=0.5):
-        # Check for environment
+        # Required argument
         assert arena is not None, TypeError('No arena given.')
 
         # Newborn player parameters
