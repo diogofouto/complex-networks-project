@@ -39,7 +39,8 @@ class Player:
     # --------------------- PRISONER'S DILEMMA ----------------------
     
     def play_with_neighbors(self):
-        for player in self.get_neighbors():
+        for player in self.get_players(just_neighbors=True): # For each neighbor
+            
             # Choose own's tactic
             own_cooperate_prob = self.bias[round(self.tag)][round(player.tag)]
             own_choice = np.random.choice(a=['C', 'D'], p=[own_cooperate_prob, 1-own_cooperate_prob])
@@ -77,33 +78,23 @@ class Player:
             else:
                 # TODO
 
-
     def update_bias(self, game_score=None, other_player_tag=None):
         raise NotImplementedError(self)
 
 
     # ---------------------- HELPER FUNCTIONS -----------------------
     
-    def get_all_nodes(self):
-        return Player.network.nodes()
-
-    def get_players(self, tag_id=None, limit_neighbors=False):
-        if limit_neighbors:
+    def get_players(self, tag=None, just_neighbors=False):
+        if just_neighbors:
             players = Player.network.neighbors(self.id)
         else:
-            players = self.get_all_nodes()
+            players = Player.network.nodes()
 
-        if tag_id is None:
+        if tag is None:
             return [Player.network.node[_]['player'] for _ in players]
         else:
             return [Player.network.node[_]['player'] for _ in players
-                    if Player.network.node[_]['player'].tag['id'] == tag_id]
-
-    def get_all_players(self, tag_id=None):
-        return self.get_players(tag_id=tag_id, limit_neighbors=False)
-
-    def get_neighbors(self, tag_id=None):
-        return self.get_players(tag_id=tag_id, limit_neighbors=True)
+                    if Player.network.node[_]['player'].tag['id'] == tag]
 
     def get_player(self, player_id):
         return Player.network.node[player_id]['player']
