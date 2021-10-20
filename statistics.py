@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import random
 
 # util functions
 
@@ -80,7 +81,7 @@ Given a list of lists with opinions, shows how the polarization in opinions
 0.25-0.5, weakly attatched for A
 ...
 """
-def drawPolarization(opListList):
+def showPolarizationBars(opListList):
     results = {}
 
     # For each timestep
@@ -99,10 +100,11 @@ def drawPolarization(opListList):
                 split[3] += 1
             else:
                 split[4] += 1
-
+            print(op, split)
+        print(i)
         results["Timestep "+str(i)] = split
 
-    category_names = ['Strongly attached to A', 'Weakly attached to A', 'Not defined'
+    category_names = ['Strongly attached to A', 'Weakly attached to A', 'Not defined',
                 'Weakly attached to B', 'Strongly attached to B']
 
     labels = list(results.keys())
@@ -129,3 +131,29 @@ def drawPolarization(opListList):
             loc='lower left', fontsize='small')
     
     plt.show()
+
+"""
+Makes a scatter plot with the current opinions
+"""
+def plotOpinions(opListList):
+    X = []
+    Y = []
+
+    for i in range(len(opListList)):
+        for val in opListList[i]:
+            # X adds a bit of noise, so numbers dont overlap so quickly!
+            X.append(i + random.uniform(-0.01, 0.01))
+            Y.append(val)
+            
+    plt.xticks(range(len(opListList)))
+    plt.yticks([0,0.25,0.5,0.75,1])
+    plt.scatter(X,Y,c=Y,cmap='plasma',vmin=0,vmax=1)
+    plt.show()
+
+op1 = [0.2,0.3,0.8,0.9,0.95,0.1]
+op2 = [0.4,0.2,0.9,0.5,0.4,0.1]
+op3 = [0.6,0.1,0.95,0.3,0.2,0.05]
+
+op = [op1,op2,op3]
+
+showPolarizationBars(op)
