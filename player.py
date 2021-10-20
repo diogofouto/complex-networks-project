@@ -49,10 +49,11 @@ class Player:
             other_cooperate_prob = player.bias[round(player.tag)][round(self.tag)]
             other_choice = np.random.choice(a=['C', 'D'], p=[other_cooperate_prob, 1-other_cooperate_prob])
 
-            # Play
+            # Record previous payoffs
             own_previous_payoff = self.payoff
             other_previous_payoff = player.payoff
 
+            # Play
             if own_choice == other_choice:
                 if own_choice == 'C':
                     self.payoff += 1
