@@ -4,13 +4,11 @@ from .arena import Arena
 from .player import Player
 
 class Simulation:
-    def __init__(self, topology=None, players_info=(), num_rounds=1, num_timesteps=100):
+    def __init__(self, topology=None, num_rounds=1, num_timesteps=100):
         # Check for main arguments
         assert topology is not None, TypeError('__init__ missing \'topology\'')
-        assert len(states) != 0, TypeError('__init__ missing \'states\'')
 
         self.G = topology
-        self.players_info = players_info
         self.num_rounds = num_rounds
         self.num_timesteps = num_timesteps
 
@@ -31,7 +29,7 @@ class Simulation:
 
         print('Creating players...')
         for i in self.arena.G.nodes():
-            self.arena.G.node[i]['player'] = Player(arena=self.arena, player_id=i, player_info=deepcopy(self.players_info[i]))
+            self.arena.G.node[i]['player'] = Player(arena=self.arena, player_id=i)
         print('Players created')
 
         # Run round
