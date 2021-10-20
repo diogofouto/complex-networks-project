@@ -12,10 +12,12 @@ def main(num_of_nodes=100):
     
     # Run Simulation
     sim = Simulation(topology=G, players_info=players_info)
-    sim.run()
+    opinions, biases = sim.run()
 
     # Draw Visualization
     nx.draw(G)
+
+    # Process statistics
 
 if __name__ == '__main__':
     main()

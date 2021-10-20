@@ -14,6 +14,11 @@ class Simulation:
         self.num_rounds = num_rounds
         self.num_timesteps = num_timesteps
 
+        # Statistics
+        self.opinions = []      # A list of dictionaries for each timestep, with opinions for each id
+        self.prejudices = []    # A list of dictionaries for each timestep, with prejudice for each pair
+                                # That is, the table P for AA, AB, BA and BB
+
     def run(self):
         print('Starting simulation...')
         for i in range(self.num_rounds):
