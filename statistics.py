@@ -150,10 +150,69 @@ def plotOpinions(opListList):
     plt.scatter(X,Y,c=Y,cmap='plasma',vmin=0,vmax=1)
     plt.show()
 
+"""
+Plots a single prejudice matrix of format
+[[AA,AB],[BA, BB]]
+Where each value corresponds to the percieved chance of the other player collaborating 
+"""
+def plotPrejudice(matrix):
+    labels = ['AA', 'AB', 'BA', 'BB']
+    means = [matrix[0][0], matrix[0][1], matrix[1][0],matrix[1][1]]
+
+    x = np.arange(len(labels))  # the label locations
+    width = 0.35  # the width of the bars
+
+    fig, ax = plt.subplots()
+    rects1 = ax.bar(x - width/2, means, width)
+
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel('Percieved chance of the other player collaborating')
+    ax.set_title('Percieved chance of the other player collaborating by player and opponent opinion')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.legend()
+
+    ax.bar_label(rects1, padding=3)
+
+    fig.tight_layout()
+
+    plt.show()
+
+"""
+Same as plot prejudice, but comparing between having the same, and having a different opinion
+"""
+def plotPrejudiceComparison(matrix):
+    labels = ['Same Opinion', 'Different Opinion']
+    A_means = [matrix[0][0],matrix[0][1]]
+    B_means = [matrix[1][1],matrix[1][0]]
+
+    x = np.arange(len(labels))  # the label locations
+    width = 0.35  # the width of the bars
+
+    fig, ax = plt.subplots()
+    rects1 = ax.bar(x - width/2, A_means, width, label='Opinion A')
+    rects2 = ax.bar(x + width/2, B_means, width, label='Opinion B')
+
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel('Percieved chance of the other player collaborating')
+    ax.set_title('Percieved chance of the other player collaborating by player and opponent opinion')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.legend()
+
+    ax.bar_label(rects1, padding=3)
+    ax.bar_label(rects2, padding=3)
+
+    fig.tight_layout()
+
+    plt.show()
+
 op1 = [0.2,0.3,0.8,0.9,0.95,0.1]
 op2 = [0.4,0.2,0.9,0.5,0.4,0.1]
 op3 = [0.6,0.1,0.95,0.3,0.2,0.05]
 
 op = [op1,op2,op3]
 
-showPolarizationBars(op)
+prejudice1 = [[0.1,0.7], [0.8,0.05]]
+
+plotPrejudiceComparison(prejudice1)
