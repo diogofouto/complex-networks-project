@@ -1,5 +1,5 @@
 import networkx as nx
-
+from .simulation import Simulation
 
 # SIMULATION CONSTANTS
 # to be thought about

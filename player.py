@@ -20,9 +20,9 @@ class Player:
 
         # Newborn player params
         self.id = player_id
-        self.tag = 0.5
+        self.belief = 0.5
         self.bias = Player.global_bias
-        self.payoff = 0
+        self.round_total_payoff = 0
 
         # Initialize network
         Player.network = arena.G
@@ -31,71 +31,87 @@ class Player:
         self.env = arena
         self.env.process(self.run())
 
-    def run(self):
+    def run(self, other_player):
         while True:
-            self.play_with_neighbors()
+            self.play_with_neighour(other_player)
+            #! Gotta break this cycle with yields or events, somehow
 
 
     # --------------------- PRISONER'S DILEMMA ----------------------
-    
-    def play_with_neighbors(self):
-        for player in self.get_players(just_neighbors=True): # For each neighbor
-            
-            # Choose own's tactic
-            own_cooperate_prob = self.bias[round(self.tag)][round(player.tag)]
-            own_choice = np.random.choice(a=['C', 'D'], p=[own_cooperate_prob, 1-own_cooperate_prob])
-            
-            # Get other player's tactic
-            other_cooperate_prob = player.bias[round(player.tag)][round(self.tag)]
-            other_choice = np.random.choice(a=['C', 'D'], p=[other_cooperate_prob, 1-other_cooperate_prob])
 
-            # Record previous payoffs
-            own_previous_payoff = self.payoff
-            other_previous_payoff = player.payoff
+    def play_with_neighbour(self, other_player):
+        assert other_player.id in self.network[self.id]
 
-            # Play
-            if own_choice == other_choice:
-                if own_choice == 'C':
-                    self.payoff += 1
-                    player.payoff += 1
-                else:
-                    self.payoff += 2
-                    player.payoff += 2
+        def choose_tactics():
+            return self.choose_tactic(other_player), other_player.choose_tactic(self)
+
+        def compute_payoffs():
+            return self.compute_payoff(own_choice, other_choice), other_player.compute_payoff(other_choice, own_choice)
+
+        def update_biases():
+            self.update_bias(own_payoff, other_player.get_tag())
+            other_player.update_bias(other_payoff, self.get_tag())
+        
+        def increase_total_years_and_tag_counts(own_tag_inv_years, own_tag_neighs,
+                                                    other_tag_inv_years, other_tag_neighs,
+                                                        own_previous_payoff):
+            increase_in_years = self.round_total_payoff - own_previous_payoff
+
+            if self.get_tag() != other_player.get_tag():
+                other_tag_inv_years += 1 / increase_in_years
+                other_tag_neighs += 1
             else:
-                if own_choice == 'D':
-                    player.payoff += 3
-                else:
-                    self.payoff += 3
+                own_tag_inv_years += 1 / increase_in_years
+                own_tag_neighs += 1
 
-            # Update own bias
-            if self.payoff > own_previous_payoff:
-                # TODO
+        # Each node chooses its tactic
+        own_choice, other_choice = choose_tactics()
+
+        # Compute the payoff from playing with the other node
+        own_payoff, other_payoff = self.compute_payoff(own_choice, other_choice)
+        
+        update_biases()
+
+    def choose_tactic(self, other_player):
+        cooperate_prob = self.bias[self.get_tag()][other_player.get_tag()]
+        return np.random.choice(a=['C', 'D'], p=[cooperate_prob, 1-cooperate_prob])
+
+    def compute_payoff(self, own_choice, other_choice):
+        inc = 0
+
+        if own_choice == other_choice:
+            if own_choice == 'C':
+                inc = 1
             else:
-                # TODO
+                inc = 2
+        elif own_choice == 'C':
+            inc = 3
+        
+        self.round_total_payoff += inc
+        
+        return inc
 
-            # Update other player's bias
-            if player.payoff > other_previous_payoff:
-                # TODO
-            else:
-                # TODO
-
-    def update_bias(self, game_score=None, other_player_tag=None):
-        raise NotImplementedError(self)
-
+    def update_bias(self, payoff=None, other_player_tag=None):
+        def compute_delta(self):
+            return 
+        pass
 
     # ---------------------- HELPER FUNCTIONS -----------------------
     
-    def get_players(self, tag=None, just_neighbors=False):
+    def get_players(self, belief=None, just_neighbors=False):
         if just_neighbors:
             players = Player.network.neighbors(self.id)
         else:
             players = Player.network.nodes()
 
-        if tag is None:
+        if belief is None:
             return [Player.network.node[_]['player'] for _ in players]
         else:
             return [Player.network.node[_]['player'] for _ in players
-                    if Player.network.node[_]['player'].tag['id'] == tag]
+                    if Player.network.node[_]['player'].belief['id'] == belief]
 
     def get_player(self, player_id):
         return Player.network.node[player_id]['player']
+
+    def get_tag(self):
+        return round(self.tag)

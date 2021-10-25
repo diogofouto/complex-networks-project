@@ -1,9 +1,10 @@
+from networkx.classes.graph import Graph
 import simpy
 import networkx as nx
-import Player
+from .player import Player
 
 class Arena(simpy.Environment):
-    def __init__(self, topology):
+    def __init__(self, topology: Graph):
         super().__init__(initial_time=0)
         assert isinstance(topology, nx.Graph)
         self.G = topology
@@ -20,14 +21,17 @@ class Arena(simpy.Environment):
 
 
         for i in range(0, num_timesteps):
-            super.run(1)
+            super.run(1) #? wot, lad
+
+            for u, v in [edge for edge in self.G.edges]:
+                self.G[u]['player'].run(self.G[v]['player'])
 
             #Store statistics: current global bias and all players opinion
             global_biases += Player.global_bias
 
             currentOpinions = []
-            for node in G.nodes:
-                currentOpinions += [node['player'].tag]
+            for node in self.G.nodes:
+                currentOpinions += [node['player'].get_tag()]
             
             opinions.append(currentOpinions)
     
