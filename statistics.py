@@ -207,12 +207,46 @@ def plotPrejudiceComparison(matrix):
 
     plt.show()
 
+"""
+Plots the prejudice for every pair (AA, AB...) by timestep. Receives a list of matrices
+"""
+def plotPrejudiceByTimestep(matrices):
+    AA = []
+    AB = []
+    BA = []
+    BB = []
+
+    for matrix in matrices:
+        AA.append(matrix[0][0])
+        AB.append(matrix[0][1])
+        BA.append(matrix[1][0])
+        BB.append(matrix[1][1])
+
+    timesteps = [i for i in range(1,len(matrices)+1)]
+
+    fig, ax = plt.subplots()
+    ax.plot(timesteps, AA, label="AA")
+    ax.plot(timesteps, AB, label="AB")
+    ax.plot(timesteps, BA, label="BA")
+    ax.plot(timesteps, BB, label="BB")
+    ax.legend()
+
+    plt.yticks([i * 0.1 for i in range(11)])
+
+    plt.show()
+
 op1 = [0.2,0.3,0.8,0.9,0.95,0.1]
 op2 = [0.4,0.2,0.9,0.5,0.4,0.1]
 op3 = [0.6,0.1,0.95,0.3,0.2,0.05]
 
 op = [op1,op2,op3]
 
-prejudice1 = [[0.1,0.7], [0.8,0.05]]
+prejudice1 = [[0.5,0.5], [0.5,0.5]]
+prejudice2 = [[0.4,0.55], [0.52,0.45]]
+prejudice3 = [[0.37,0.66], [0.56,0.42]]
+prejudice4 = [[0.24,0.7], [0.57,0.4]]
+prejudice5 = [[0.1,0.85], [0.52,0.39]]
 
-plotPrejudiceComparison(prejudice1)
+prejudice = [prejudice1, prejudice2, prejudice3, prejudice4, prejudice5]
+
+plotPrejudiceByTimestep(prejudice)
