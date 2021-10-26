@@ -3,13 +3,12 @@ import numpy as np
 import math
 from .arena import Arena
 
-
 class Player:
 
     # ---------------------- STATIC VARIABLES -----------------------
 
-    network = None # where all players reside
-    global_bias = [[0.5, 0.5], [0.5, 0.5]] # bias towards thinking that a player is cooperator / defactor
+    network = None              # where all players reside
+    global_bias = [0.5, 0.5]    # bias towards thinking that a player is cooperator
     FORGETTING_FACTOR = 0.05
 
     # ----------------------- MAIN FUNCTIONS ------------------------
@@ -25,6 +24,9 @@ class Player:
         self.bias = Player.global_bias
         self.round_total_payoff = 0
 
+        # 0 or 1
+        self.tag = 0
+
         # Parameters used to compute the belief
 
         # sum(1/(t_i + 1)), where i is the id of a node of your tag   
@@ -37,17 +39,13 @@ class Player:
         self.own_tag_count = 0
         self.other_tag_count = 0
 
+
         # Initialize network
         Player.network = arena.G
 
         # For SimPy
-        self.env = arena
-        self.env.process(self.run())
-
-    # def run(self, other_player):
-    #     while True:
-    #         self.play_with_neighour(other_player)
-    #         #! Gotta break this cycle with yields or events, somehow
+        # self.env = arena
+        # self.env.process(self.run())
 
 
     # --------------------- PRISONER'S DILEMMA ----------------------
@@ -76,7 +74,6 @@ class Player:
 
         update_counts_for_bias_update()
 
-
     def increase_total_years_and_tag_counts(self, other_node_tag, payoff):
         if other_node_tag == self.get_tag():
             self.own_tag_inv_payoff += 1 / (payoff + 1)
@@ -86,9 +83,12 @@ class Player:
             self.other_tag_count += 1
 
     def choose_tactic(self, other_player):
-        #! This is "wrong"..?
-        cooperate_prob = self.bias[self.get_tag()][other_player.get_tag()]
-        return np.random.choice(a=['C', 'D'], p=[cooperate_prob, 1-cooperate_prob])
+        """
+        Chooses tactic according to how much we like our own tag.
+        """
+        own_cooperate_prob = 1 - self.belief if self.tag == other_player.get_tag() else self.belief
+
+        return np.random.choice(a=['C', 'D'], p=[own_cooperate_prob, 1 - own_cooperate_prob])
 
     def compute_payoff(self, own_choice, other_choice):
         inc = 0
@@ -120,11 +120,9 @@ class Player:
 
         self.belief = sigmoid(self.belief * self.FORGETTING_FACTOR + delta())
 
-    def update_global_bias(self):
-        own_tag_defactors = self.own_tag_count - self.own_tag_cooperators
-        other_tag_defactors = self.other_tag_count - self.other_tag_cooperators
-
-        
+        if self.belief > 0.5:
+            self.tag = 1 - self.tag
+            self.belief = 1 - self.belief
 
     def reset_counters(self):
         self.own_tag_cooperators = self.other_tag_cooperators = 0
@@ -149,4 +147,4 @@ class Player:
         return Player.network.node[player_id]['player']
 
     def get_tag(self):
-        return round(self.tag)
+        return self.tag

@@ -42,3 +42,6 @@ class Arena(simpy.Environment):
             opinions.append(currentOpinions)
     
         return opinions, global_biases
+
+    def update_global_biases(self):
+        pass
