@@ -1,22 +1,16 @@
 import networkx as nx
+from classes import Simulation
 
-
-# SIMULATION CONSTANTS
-# to be thought about
 
 
 def main(num_of_nodes=100):
-    # Build Graph
-    G = nx.barabasi_albert_graph(num_of_nodes)
+    # build graph
+    G = nx.barabasi_albert_graph(num_of_nodes, 5)
     
-    # Run Simulation
+    # run simulation
     sim = Simulation(topology=G)
-    opinions, biases = sim.run()
+    sim.run()
 
-    # Draw Visualization
-    nx.draw(G)
-
-    # Process statistics
 
 if __name__ == '__main__':
     main()
