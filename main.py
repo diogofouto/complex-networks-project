@@ -1,6 +1,5 @@
 import networkx as nx
-from simulation import Simulation
-
+from .simulation import Simulation
 
 
 def main(num_of_nodes=100):
@@ -10,7 +9,6 @@ def main(num_of_nodes=100):
 	# run simulation
 	sim = Simulation(topology=G)
 	sim.run()
-
 
 if __name__ == '__main__':
 	main()
