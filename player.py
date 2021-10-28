@@ -1,6 +1,6 @@
 import networkx as nx
 import numpy as np
-import math
+from .utils import sigmoid
 from .arena import Arena
 
 class Player:
@@ -51,6 +51,9 @@ class Player:
     # --------------------- PRISONER'S DILEMMA ----------------------
 
     def play_with_neighbour(self, other_player):
+
+        # --------------------- AUXILIARY FUNCTIONS ----------------------
+
         def choose_tactics():
             return self.choose_tactic(other_player), other_player.choose_tactic(self)
 
@@ -64,6 +67,8 @@ class Player:
             self.update_cooperator_count(other_choice, other_player.get_tag())
             other_player.update_cooperator_count(own_choice, self.get_tag())
 
+        # --------------------- ACTUAL FUNCTION ----------------------
+
         assert other_player.id in self.network[self.id]
 
         # Each node chooses its tactic
@@ -73,14 +78,6 @@ class Player:
         own_payoff, other_payoff = compute_payoffs()
 
         update_counts_for_bias_update()
-
-    def increase_total_years_and_tag_counts(self, other_node_tag, payoff):
-        if other_node_tag == self.get_tag():
-            self.own_tag_inv_payoff += 1 / (payoff + 1)
-            self.own_tag_count += 1
-        else:
-            self.other_tag_inv_payoff += 1 / (payoff + 1)
-            self.other_tag_count += 1
 
     def choose_tactic(self, other_player):
         """
@@ -104,6 +101,26 @@ class Player:
         self.round_total_payoff += inc
         
         return inc
+
+    def update_belief(self):
+        def delta():
+            return (1 / self.other_tag_count) * self.other_tag_inv_payoff - (1 / self.own_tag_count) * self.own_tag_inv_payoff
+
+        self.belief = sigmoid(self.belief * self.FORGETTING_FACTOR + delta())
+
+        if self.belief > 0.5:
+            self.tag = 1 - self.tag
+            self.belief = 1 - self.belief
+
+    # ---------------------- HELPER FUNCTIONS -----------------------
+
+    def increase_total_years_and_tag_counts(self, other_node_tag, payoff):
+        if other_node_tag == self.get_tag():
+            self.own_tag_inv_payoff += 1 / (payoff + 1)
+            self.own_tag_count += 1
+        else:
+            self.other_tag_inv_payoff += 1 / (payoff + 1)
+            self.other_tag_count += 1
     
     def update_cooperator_count(self, other_choice, other_tag):
         if other_choice == 'C':
@@ -112,24 +129,11 @@ class Player:
             else:
                 self.other_tag_cooperators += 1
 
-    def update_belief(self):
-        def delta():
-            return (1 / self.other_tag_count) * self.other_tag_inv_payoff - (1 / self.own_tag_count) * self.own_tag_inv_payoff
-        def sigmoid(x):
-            return 1 / (1 + math.exp(-x))
-
-        self.belief = sigmoid(self.belief * self.FORGETTING_FACTOR + delta())
-
-        if self.belief > 0.5:
-            self.tag = 1 - self.tag
-            self.belief = 1 - self.belief
-
     def reset_counters(self):
         self.own_tag_cooperators = self.other_tag_cooperators = 0
         self.own_tag_inv_payoff = self.other_tag_inv_payoff = 0
         self.own_tag_count = self.other_tag_count = 0
 
-    # ---------------------- HELPER FUNCTIONS -----------------------
     
     def get_players(self, belief=None, just_neighbors=False):
         if just_neighbors:
@@ -148,3 +152,9 @@ class Player:
 
     def get_tag(self):
         return self.tag
+
+    def get_other_tag_count(self):
+        return self.other_tag_count
+    
+    def get_other_tag_cooperators(self):
+        return self.other_tag_cooperators
