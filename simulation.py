@@ -26,6 +26,8 @@ class Simulation:
 			self.run_attempt(i)
 			print('Simulation attempt {} completed successfully!'.format(i))
 
+		return self.opinions[0], self.prejudices[0]
+
 
 	def run_attempt(self, attempt_no=0):
 		# Copy and save arena
@@ -34,11 +36,14 @@ class Simulation:
 
 		print('Creating players...')
 		for i in self.arena.G.nodes():
-			self.arena.G.nodes[i]['player'] = Player(player_id=i)
+			self.arena.G.nodes[i]['player'] = Player(arena = self.arena, player_id=i)
 		print('Players created!')
 
 		# Run attempt for num_timesteps
 		opinions, biases = self.arena.run(num_timesteps=self.num_timesteps)
+
+		self.opinions.append(opinions)
+		self.prejudices.append(biases)
 
 		# Draw Visualization
 		nx.draw(self.arena.G)

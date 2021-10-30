@@ -234,19 +234,3 @@ def plotPrejudiceByTimestep(matrices):
 	plt.yticks([i * 0.1 for i in range(11)])
 
 	plt.show()
-
-op1 = [0.2,0.3,0.8,0.9,0.95,0.1]
-op2 = [0.4,0.2,0.9,0.5,0.4,0.1]
-op3 = [0.6,0.1,0.95,0.3,0.2,0.05]
-
-op = [op1,op2,op3]
-
-prejudice1 = [[0.5,0.5], [0.5,0.5]]
-prejudice2 = [[0.4,0.55], [0.52,0.45]]
-prejudice3 = [[0.37,0.66], [0.56,0.42]]
-prejudice4 = [[0.24,0.7], [0.57,0.4]]
-prejudice5 = [[0.1,0.85], [0.52,0.39]]
-
-prejudice = [prejudice1, prejudice2, prejudice3, prejudice4, prejudice5]
-
-plotPrejudiceByTimestep(prejudice)

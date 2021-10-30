@@ -1,7 +1,7 @@
 import simpy
 import networkx as nx
-from .player import Player
-from .utils import sigmoid
+from player import Player
+from utils import sigmoid
 from networkx.classes.graph import Graph
 
 class Arena(simpy.Environment):
@@ -24,9 +24,9 @@ class Arena(simpy.Environment):
 
             # Update the individual biases after each round and resets their counters
             for u in self.G.nodes:
-                player = self.G[u]['player']
+                player = self.G.nodes[u]['player']
 
-                player.update_bias()
+                player.update_belief()
                 player.reset_counters()
         
         # --------------------- ACTUAL FUNCTION ----------------------
@@ -35,27 +35,26 @@ class Arena(simpy.Environment):
         global_biases = [] # global biases for each timestep (i.e. the table P for AA, AB, BA and BB)
 
         for i in range(num_timesteps):
-            super().run(until=i + 1)
+            #super().run(until=i + 1)
 
             # Running the simulation for num_timesteps
+
             for u, v in [edge for edge in self.G.edges]:
-                p_1 = self.G[u]['player']
-                p_2 = self.G[v]['player']
+                p_1 = self.G.nodes[u]['player']
+                p_2 = self.G.nodes[v]['player']
 
                 p_1.play_with_neighbour(p_2)
 
             update_biases()
 
             # Store statistics: current global bias and all players opinion
-            global_biases += Player.global_bias
+            global_biases.append(Player.global_bias)
 
             current_opinions = []
             for n in self.G.nodes():
                 current_opinions.append(self.G.nodes[n]['player'].get_tag())
-            
-            opinions.append(current_opinions)
         
-        return opinions, global_biases
+        return current_opinions, global_biases
 
     def update_global_biases(self):
 
@@ -72,11 +71,16 @@ class Arena(simpy.Environment):
                     = (1 / total(tag_x)) * (fc - (1 - fc))
                     = (1 / total(tag_x)) * (2fc - 1)
             """
-            return (1 / players_of_tag_x) (2 * fraction_coop_tag_y - 1)
+            #TODO CHECK THIS! 
+            if(players_of_tag_x == 0):
+                return 0
+            return (1 / players_of_tag_x) * (2 * fraction_coop_tag_y - 1)
 
         def fraction_of_other_tag_coops(p: Player):
             coops = p.get_other_tag_cooperators()
             neighs = p.get_other_tag_count()
+            if(neighs == 0):
+                return 0
             return coops / neighs
 
         def new_bias(prev_bias, rel_coop):
@@ -90,7 +94,7 @@ class Arena(simpy.Environment):
         tag_1_sum_fraction_of_0_coops = 0
 
         for u in self.G.nodes:
-            player = self.G[u]['player']
+            player = self.G.nodes[u]['player']
             if player.get_tag() == 0:
                 total_0_players += 1
                 tag_0_sum_fraction_of_1_coops += fraction_of_other_tag_coops(player)
@@ -98,8 +102,15 @@ class Arena(simpy.Environment):
                 total_1_players += 1
                 tag_1_sum_fraction_of_0_coops += fraction_of_other_tag_coops(player)
 
+
+        # TODO CHECK IF WE CAN CALCULATE INVERSE FRACTION LIKE THIS
+        relative_coop_0_0 = relative_cooperation(total_0_players, 1 - tag_0_sum_fraction_of_1_coops)
+        relative_coop_1_1 = relative_cooperation(total_1_players, 1 - tag_1_sum_fraction_of_0_coops)
+
         relative_coop_0_1 = relative_cooperation(total_0_players, tag_0_sum_fraction_of_1_coops)
         relative_coop_1_0 = relative_cooperation(total_1_players, tag_1_sum_fraction_of_0_coops)
         
-        Player.global_bias = new_bias(Player.global_bias[0], relative_coop_0_1)
-        Player.global_bias = new_bias(Player.global_bias[1], relative_coop_1_0)
+        Player.global_bias[0][0] = new_bias(Player.global_bias[0][0], relative_coop_0_0)
+        Player.global_bias[0][1] = new_bias(Player.global_bias[0][1], relative_coop_0_1)
+        Player.global_bias[1][0] = new_bias(Player.global_bias[1][1], relative_coop_1_1)
+        Player.global_bias[1][1] = new_bias(Player.global_bias[1][0], relative_coop_1_0)

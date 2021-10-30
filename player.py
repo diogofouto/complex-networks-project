@@ -1,14 +1,15 @@
 import numpy as np
-import networkx as nx
-from .arena import Arena
-from .utils import sigmoid
+#import networkx as nx
+#from arena import Arena
+from utils import sigmoid
 
 class Player:
 
     # ---------------------- STATIC VARIABLES -----------------------
 
     network = None              # where all players reside
-    global_bias = [0.5, 0.5]    # bias towards thinking that a player is cooperator, according to his tag
+    global_bias = [[0.5, 0.5],[0.5, 0.5]]    # bias towards thinking that a player is a defector, according to his tag
+                                             # Format: [[AA,AB],[BB,BA]]
     FORGETTING_FACTOR = 0.05
 
     # ----------------------- MAIN FUNCTIONS ------------------------
@@ -46,13 +47,6 @@ class Player:
         self.env = arena
         self.env.process(self.run())
 
-    def run(self):
-        #! Should this really be while True?
-        while True:
-            self.play_with_neighbors()
-            #! Is the below line correct?
-            yield self.env.timeout(1) # each interaction takes 1 timestep
-
 
     # --------------------- PRISONER'S DILEMMA ----------------------
 
@@ -85,13 +79,28 @@ class Player:
 
         update_counts_for_bias_update()
 
+
     def choose_tactic(self, other_player):
         """
-        Chooses tactic according to how much we like our own tag.
+        Chooses tactic according to how much the player believes the other will collaborate.
+        If the player believes the other will collaborate, 
+        it will only do so as well based on how much the other player's belief is similar to his.
         """
-        own_cooperate_prob = 1 - self.belief if self.tag == other_player.get_tag() else self.belief
+        opponent_prediction = ""
 
-        return np.random.choice(a=['C', 'D'], p=[own_cooperate_prob, 1 - own_cooperate_prob])
+        if(self.tag == other_player.get_tag()):
+            opponent_prediction = np.random.choice(a=['C', 'D'], p=[1 - self.bias[self.tag][0], self.bias[self.tag][0]])
+        else:
+            opponent_prediction = np.random.choice(a=['C', 'D'], p=[1 - self.bias[self.tag][1], self.bias[self.tag][1]])
+
+        #If we predict a defect, we defect too, else we roll a chance for collaboration 
+        if(opponent_prediction == 'D'):
+            return 'D'
+        else:
+            chance_to_collab = abs(self.belief - other_player.belief)
+            return np.random.choice(a=['C', 'D'], p=[1 - chance_to_collab, chance_to_collab])
+
+
 
     def compute_payoff(self, own_choice, other_choice):
         inc = 0
@@ -110,6 +119,11 @@ class Player:
 
     def update_belief(self):
         def delta():
+            #TODO GET BETTER RULE TO STOP DIVIDING BY 0
+            if(self.other_tag_count == 0):
+                return - (1 / self.own_tag_count) * self.own_tag_inv_payoff
+            elif(self.own_tag_count == 0):
+                return (1 / self.other_tag_count) * self.other_tag_inv_payoff
             return (1 / self.other_tag_count) * self.other_tag_inv_payoff - (1 / self.own_tag_count) * self.own_tag_inv_payoff
 
         self.belief = sigmoid(self.belief * self.FORGETTING_FACTOR + delta())
@@ -164,3 +178,12 @@ class Player:
     
     def get_other_tag_cooperators(self):
         return self.other_tag_cooperators
+
+    # ---------------------- MAIN RUNNING FUNCTION -----------------------
+
+    def run(self):
+        #! Should this really be while True?
+        while True:
+            self.play_with_neighbour()
+            #! Is the below line correct?
+            yield self.env.timeout(1) # each interaction takes 1 timestep
