@@ -21,12 +21,12 @@ class Player:
 
         # Newborn player params
         self.id = player_id
-        self.belief = np.random.default_rng().uniform(low=0, high=0.5)
+        self.belief = np.random.default_rng().uniform() # Random number between 0 and 1
         self.bias = Player.global_bias
         self.round_total_payoff = 0
 
         # 0 or 1
-        self.tag = np.random.default_rng().choice(a=[0, 1])
+        self.tag = round(self.belief)
 
         # Parameters used to compute the belief and for bias updates
 
@@ -127,9 +127,8 @@ class Player:
 
         self.belief = sigmoid(self.belief * self.FORGETTING_FACTOR + delta())
         
-        if self.belief > 0.5:
+        if (self.belief > 0.5 and self.tag == 0) or (self.belief < 0.5 and self.tag == 1):
             self.tag = 1 - self.tag
-            self.belief = 1 - self.belief
 
     # ---------------------- HELPER FUNCTIONS -----------------------
 
