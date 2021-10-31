@@ -7,9 +7,9 @@ def main(num_of_nodes=100):
 	G = nx.barabasi_albert_graph(num_of_nodes, 5)
 	
 	# run simulation
-	sim = Simulation(topology=G)
+	sim = Simulation(topology=G, num_attempts=5)
 	opinions, prejudices = sim.run()
-
+	
 	statistics.plotPrejudiceByTimestep(prejudices)
 
 if __name__ == '__main__':

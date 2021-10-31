@@ -30,14 +30,28 @@ class Simulation:
 
 
 	def run_attempt(self, attempt_no=0):
+		def draw_run_graph():
+			color_map = []
+			for opinion in opinions:
+				if opinion == 0:
+					color_map.append('blue')
+				else:
+					color_map.append('red')
+
+			# Draw Visualization
+			nx.draw(self.arena.G, node_color=color_map)
+
+		def create_players():
+			print('Creating players...')
+			for i in self.arena.G.nodes():
+				self.arena.G.nodes[i]['player'] = Player(arena = self.arena, player_id=i)
+			print('Players created!')
+
 		# Copy and save arena
 		self.arena = Arena(self.G.copy())
 		Player.arena = self.arena
 
-		print('Creating players...')
-		for i in self.arena.G.nodes():
-			self.arena.G.nodes[i]['player'] = Player(arena = self.arena, player_id=i)
-		print('Players created!')
+		create_players()
 
 		# Run attempt for num_timesteps
 		opinions, biases = self.arena.run(num_timesteps=self.num_timesteps)
@@ -45,8 +59,7 @@ class Simulation:
 		self.opinions.append(opinions)
 		self.prejudices.append(biases)
 
-		# Draw Visualization
-		nx.draw(self.arena.G)
+		draw_run_graph()
 
 		# Show statistics
 		print("OPINIONS:")
@@ -54,7 +67,3 @@ class Simulation:
 
 		print("BIASES:")
 		print(biases, '\n')
-
-
-
-

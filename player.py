@@ -3,12 +3,12 @@ import numpy as np
 #from arena import Arena
 from utils import sigmoid
 
+
 class Player:
 
     # ---------------------- STATIC VARIABLES -----------------------
-
     network = None              # where all players reside
-    global_bias = [[0.5, 0.5],[0.5, 0.5]]    # bias towards thinking that a player is a defector, according to his tag
+    global_bias = [[0.3, 0.5],[0.3, 0.5]]    # bias towards thinking that a player is a defector, according to his tag
                                              # Format: [[AA,AB],[BB,BA]]
     FORGETTING_FACTOR = 0.05
 
@@ -21,12 +21,12 @@ class Player:
 
         # Newborn player params
         self.id = player_id
-        self.belief = 0.5
+        self.belief = np.random.default_rng().uniform(low=0, high=0.5)
         self.bias = Player.global_bias
         self.round_total_payoff = 0
 
         # 0 or 1
-        self.tag = 0
+        self.tag = np.random.default_rng().choice(a=[0, 1])
 
         # Parameters used to compute the belief and for bias updates
 
@@ -88,18 +88,17 @@ class Player:
         """
         opponent_prediction = ""
 
-        if(self.tag == other_player.get_tag()):
-            opponent_prediction = np.random.choice(a=['C', 'D'], p=[1 - self.bias[self.tag][0], self.bias[self.tag][0]])
+        if (self.tag == other_player.get_tag()):
+            opponent_prediction = np.random.default_rng().choice(a=['C', 'D'], p=[1 - self.bias[self.tag][0], self.bias[self.tag][0]])
         else:
-            opponent_prediction = np.random.choice(a=['C', 'D'], p=[1 - self.bias[self.tag][1], self.bias[self.tag][1]])
+            opponent_prediction = np.random.default_rng().choice(a=['C', 'D'], p=[1 - self.bias[self.tag][1], self.bias[self.tag][1]])
 
-        #If we predict a defect, we defect too, else we roll a chance for collaboration 
-        if(opponent_prediction == 'D'):
+        #If we predict a defect, we defect too, else we roll a chance for deffection 
+        if (opponent_prediction == 'D'):
             return 'D'
         else:
-            chance_to_collab = abs(self.belief - other_player.belief)
-            return np.random.choice(a=['C', 'D'], p=[1 - chance_to_collab, chance_to_collab])
-
+            chance_to_defect = abs(self.belief - other_player.belief)
+            return np.random.default_rng().choice(a=['C', 'D'], p=[1 - chance_to_defect, chance_to_defect])
 
 
     def compute_payoff(self, own_choice, other_choice):
@@ -120,14 +119,14 @@ class Player:
     def update_belief(self):
         def delta():
             #TODO GET BETTER RULE TO STOP DIVIDING BY 0
-            if(self.other_tag_count == 0):
+            if (self.other_tag_count == 0):
                 return - (1 / self.own_tag_count) * self.own_tag_inv_payoff
-            elif(self.own_tag_count == 0):
+            elif (self.own_tag_count == 0):
                 return (1 / self.other_tag_count) * self.other_tag_inv_payoff
             return (1 / self.other_tag_count) * self.other_tag_inv_payoff - (1 / self.own_tag_count) * self.own_tag_inv_payoff
 
         self.belief = sigmoid(self.belief * self.FORGETTING_FACTOR + delta())
-
+        
         if self.belief > 0.5:
             self.tag = 1 - self.tag
             self.belief = 1 - self.belief
@@ -178,6 +177,12 @@ class Player:
     
     def get_other_tag_cooperators(self):
         return self.other_tag_cooperators
+
+    def get_own_tag_count(self):
+        return self.own_tag_count
+
+    def get_own_tag_cooperators(self):
+        return self.own_tag_cooperators
 
     # ---------------------- MAIN RUNNING FUNCTION -----------------------
 
