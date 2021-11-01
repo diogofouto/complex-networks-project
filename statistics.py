@@ -219,8 +219,8 @@ def plotPrejudiceByTimestep(matrices):
 	for matrix in matrices:
 		AA.append(matrix[0][0])
 		AB.append(matrix[0][1])
-		BA.append(matrix[1][0])
-		BB.append(matrix[1][1])
+		BB.append(matrix[1][0])
+		BA.append(matrix[1][1])
 
 	timesteps = [i for i in range(1,len(matrices)+1)]
 

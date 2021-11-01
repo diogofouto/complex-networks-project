@@ -56,7 +56,7 @@ class Simulation:
 		# Run attempt for num_timesteps
 		opinions, biases = self.arena.run(num_timesteps=self.num_timesteps)
 
-		self.opinions.append(opinions)
+		self.opinions.append([opinions])
 		self.prejudices.append(biases)
 
 		draw_run_graph()

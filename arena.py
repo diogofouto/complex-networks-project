@@ -32,7 +32,6 @@ class Arena(simpy.Environment):
         
         # --------------------- ACTUAL FUNCTION ----------------------
 
-        opinions = [] # opinions of each id for each timestep
         global_biases = [deepcopy(Player.global_bias.copy())] # global biases for each timestep (i.e. the table P for AA, AB, BA and BB)
 
         for i in range(num_timesteps):
@@ -53,7 +52,7 @@ class Arena(simpy.Environment):
 
             current_opinions = []
             for n in self.G.nodes():
-                current_opinions.append(self.G.nodes[n]['player'].get_tag())
+                current_opinions.append(self.G.nodes[n]['player'].belief)
         
         return current_opinions, global_biases
 
@@ -74,7 +73,7 @@ class Arena(simpy.Environment):
             return ret
 
         def new_bias(prev_bias, rel_def):
-            return sigmoid(prev_bias + rel_def)
+            return sigmoid(prev_bias + rel_def - 0.5)
 
         # --------------------- ACTUAL FUNCTION ----------------------
 
@@ -103,7 +102,9 @@ class Arena(simpy.Environment):
         relative_def_0_1 = relative_defection(inter_01, defect_01)
         relative_def_1_0 = relative_defection(inter_10, defect_10)
 
+        #print("Old",Player.global_bias[0][0])
         Player.global_bias[0][0] = new_bias(Player.global_bias[0][0], relative_def_0_0)
         Player.global_bias[0][1] = new_bias(Player.global_bias[0][1], relative_def_0_1)
         Player.global_bias[1][1] = new_bias(Player.global_bias[1][0], relative_def_1_1)
         Player.global_bias[1][0] = new_bias(Player.global_bias[1][1], relative_def_1_0)
+        #print("New",Player.global_bias[0][0])
