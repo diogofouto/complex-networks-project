@@ -69,8 +69,6 @@ class Player:
 
         # --------------------- ACTUAL FUNCTION ----------------------
 
-        assert other_player.id in self.network[self.id]
-
         # Each node chooses its tactic
         own_choice, other_choice = choose_tactics()
 
@@ -118,15 +116,16 @@ class Player:
 
     def update_belief(self):
         def delta():
-            #TODO GET BETTER RULE TO STOP DIVIDING BY 0
             if (self.other_tag_count == 0):
                 return - (1 / self.own_tag_count) * self.own_tag_inv_payoff
             elif (self.own_tag_count == 0):
                 return (1 / self.other_tag_count) * self.other_tag_inv_payoff
             return (1 / self.other_tag_count) * self.other_tag_inv_payoff - (1 / self.own_tag_count) * self.own_tag_inv_payoff
 
+        #print("--- BEFORE ---\n", self.belief)
         self.belief = sigmoid(self.belief * self.FORGETTING_FACTOR + delta())
-        
+        #print("--- AFTER ---\n", self.belief)
+
         if (self.belief > 0.5 and self.tag == 0) or (self.belief < 0.5 and self.tag == 1):
             self.tag = 1 - self.tag
 
