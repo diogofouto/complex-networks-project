@@ -1,9 +1,6 @@
 import networkx as nx
-from copy import deepcopy
 from arena import Arena
 from player import Player
-
-
 
 class Simulation:
 	def __init__(self, topology=None, num_attempts=1, num_timesteps=100):
@@ -32,8 +29,8 @@ class Simulation:
 	def run_attempt(self, attempt_no=0):
 		def draw_run_graph():
 			color_map = []
-			for opinion in opinions:
-				if opinion == 0:
+			for opinion in opinions[-1]:
+				if round(opinion) == 0:
 					color_map.append('blue')
 				else:
 					color_map.append('red')
@@ -63,7 +60,7 @@ class Simulation:
 
 		# Show statistics
 		#print("OPINIONS:")
-		#print(opinions, '\n')
+		print(opinions, '\n')
 
 		#print("BIASES:")
-		#print(biases, '\n')
+		print(biases, '\n')

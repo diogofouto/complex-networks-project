@@ -1,14 +1,12 @@
 import numpy as np
-#import networkx as nx
-#from arena import Arena
-from utils import add_delta, sigmoid
+from utils import add_delta
 
 
 class Player:
 
     # ---------------------- STATIC VARIABLES -----------------------
     network = None              # where all players reside
-    global_bias = [[0, 0],[0, 0]]    # bias towards thinking that a player is a defector, according to his tag
+    global_bias = [[0.3, 0.5],[0.3, 0.5]]    # bias towards thinking that a player is a defector, according to his tag
                                              # Format: [[AA,AB],[BB,BA]]
     FORGETTING_FACTOR = 1
 
@@ -95,6 +93,10 @@ class Player:
         If the player believes the other will collaborate, 
         it will only do so as well based on how much the other player's belief is similar to his.
         """
+
+        # if self.get_tag() == 1:
+        #     print("-- Hi! I'm a ", self.get_tag(), " playing with a ", other_player.get_tag())
+
         opponent_prediction = ""
 
         if (self.tag == other_player.get_tag()):
@@ -102,16 +104,20 @@ class Player:
         else:
             opponent_prediction = np.random.default_rng().choice(a=['C', 'D'], p=[1 - self.bias[self.tag][1], self.bias[self.tag][1]])
 
+        # if self.get_tag() == 1:
+        #     print("-- I think that the other player will play ", opponent_prediction)
+
         #If we predict a defect, we defect too, else we roll a chance for deffection 
-        if (opponent_prediction == 'D' or self.tag != other_player.get_tag()):
+        if (opponent_prediction == 'D'):
+        #    if self.get_tag() == 1:
+        #        print("-- I will choose D")
             return 'D'
         else:
             chance_to_defect = abs(self.belief - other_player.belief) ** 2
-            p = np.random.default_rng().uniform()
-            if(p < 1- chance_to_defect):
-                return 'C'
-            else:
-                return 'D'
+            choice = np.random.default_rng().choice(a=['C', 'D'], p=[1 - chance_to_defect, chance_to_defect]) 
+        #    if self.get_tag() == 1:
+        #        print("-- I will choose ", choice)
+            return choice
 
     def compute_payoff(self, own_choice, other_choice):
         inc = 0

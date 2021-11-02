@@ -40,6 +40,8 @@ class Arena(simpy.Environment):
 
             # Running the simulation for num_timesteps
 
+            print(i)
+
             for u, v in [edge for edge in self.G.edges]:
                 p_1 = self.G.nodes[u]['player']
                 p_2 = self.G.nodes[v]['player']
@@ -50,7 +52,6 @@ class Arena(simpy.Environment):
 
             # Store statistics: current global bias and all players opinion
             global_biases.append(deepcopy(Player.global_bias))
-
             current_opinions = []
             for n in self.G.nodes():
                 current_opinions.append(self.G.nodes[n]['player'].belief)
@@ -80,34 +81,37 @@ class Arena(simpy.Environment):
 
         # --------------------- ACTUAL FUNCTION ----------------------
 
-        inter_00 = inter_01 = 0
-        inter_10 = inter_11 = 0
+        inter_00 = inter_11 = 0
+        inter_10 = 0
 
-        defect_00 = defect_01 = 0
-        defect_10 = defect_11 = 0
+        defect_00 = defect_11 = 0
+        defect_10 = 0
 
         for u in self.G.nodes:
             player: Player = self.G.nodes[u]['player']
             if player.get_tag() == 0:
                 inter_00 += player.get_own_tag_count()
-                inter_01 += player.get_other_tag_count()
+                inter_10 += player.get_other_tag_count()
                 defect_00 += player.get_own_tag_count() - player.get_own_tag_cooperators()
-                defect_01 += player.get_other_tag_count() - player.get_other_tag_cooperators()
+                defect_10 += player.get_other_tag_count() - player.get_other_tag_cooperators()
             else:
                 inter_11 += player.get_own_tag_count()
                 inter_10 += player.get_other_tag_count()
                 defect_11 += player.get_own_tag_count() - player.get_own_tag_cooperators()
                 defect_10 += player.get_other_tag_count() - player.get_other_tag_cooperators()
 
+        print("Inter: ", inter_00, inter_10, inter_11)
+        print("Def: ", defect_00, defect_10, defect_11)
+
         relative_def_0_0 = relative_defection(inter_00, defect_00)
         relative_def_1_1 = relative_defection(inter_11, defect_11)
 
-        relative_def_0_1 = relative_defection(inter_01, defect_01)
+        relative_def_0_1 = relative_defection(inter_10, defect_10)
         relative_def_1_0 = relative_defection(inter_10, defect_10)
 
         #print("Old",Player.global_bias[0][0])
         Player.global_bias[0][0] = new_bias(Player.global_bias[0][0], relative_def_0_0)
         Player.global_bias[0][1] = new_bias(Player.global_bias[0][1], relative_def_0_1)
-        Player.global_bias[1][1] = new_bias(Player.global_bias[1][0], relative_def_1_1)
-        Player.global_bias[1][0] = new_bias(Player.global_bias[1][1], relative_def_1_0)
+        Player.global_bias[1][0] = new_bias(Player.global_bias[1][0], relative_def_1_1)
+        Player.global_bias[1][1] = new_bias(Player.global_bias[1][1], relative_def_1_0)
         #print("New",Player.global_bias[0][0])
