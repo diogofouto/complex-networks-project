@@ -34,6 +34,7 @@ class Arena(simpy.Environment):
 
         global_biases = [deepcopy(Player.global_bias.copy())] # global biases for each timestep (i.e. the table P for AA, AB, BA and BB)
 
+        opinions = []
         for i in range(num_timesteps):
             #super().run(until=i + 1)
 
@@ -53,8 +54,10 @@ class Arena(simpy.Environment):
             current_opinions = []
             for n in self.G.nodes():
                 current_opinions.append(self.G.nodes[n]['player'].belief)
+
+            opinions.append(current_opinions)
         
-        return current_opinions, global_biases
+        return opinions, global_biases
 
     def update_global_biases(self):
         # --------------------- AUXILIARY FUNCTIONS ----------------------

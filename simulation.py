@@ -26,7 +26,7 @@ class Simulation:
 			self.run_attempt(i)
 			print('Simulation attempt {} completed successfully!'.format(i))
 
-		return self.opinions[0], self.prejudices[0]
+		return self.opinions, self.prejudices[0]
 
 
 	def run_attempt(self, attempt_no=0):
@@ -56,14 +56,14 @@ class Simulation:
 		# Run attempt for num_timesteps
 		opinions, biases = self.arena.run(num_timesteps=self.num_timesteps)
 
-		self.opinions.append([opinions])
+		self.opinions = opinions
 		self.prejudices.append(biases)
 
 		draw_run_graph()
 
 		# Show statistics
-		print("OPINIONS:")
-		print(opinions, '\n')
+		#print("OPINIONS:")
+		#print(opinions, '\n')
 
-		print("BIASES:")
-		print(biases, '\n')
+		#print("BIASES:")
+		#print(biases, '\n')

@@ -105,8 +105,11 @@ class Player:
             return 'D'
         else:
             chance_to_defect = abs(self.belief - other_player.belief) ** 2
-            return np.random.default_rng().choice(a=['C', 'D'], p=[1 - chance_to_defect, chance_to_defect])
-
+            p = np.random.default_rng().uniform()
+            if(p < 1- chance_to_defect):
+                return 'C'
+            else:
+                return 'D'
 
     def compute_payoff(self, own_choice, other_choice):
         inc = 0
