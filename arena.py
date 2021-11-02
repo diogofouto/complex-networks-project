@@ -2,7 +2,7 @@ from copy import deepcopy
 import simpy
 import networkx as nx
 from player import Player
-from utils import sigmoid
+from utils import add_delta
 from networkx.classes.graph import Graph
 
 class Arena(simpy.Environment):
@@ -76,7 +76,7 @@ class Arena(simpy.Environment):
             return ret
 
         def new_bias(prev_bias, rel_def):
-            return sigmoid(prev_bias + rel_def - 0.5)
+            return add_delta(prev_bias, rel_def, Player.OLD_BIAS_WEIGHT)
 
         # --------------------- ACTUAL FUNCTION ----------------------
 

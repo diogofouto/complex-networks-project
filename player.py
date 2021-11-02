@@ -1,7 +1,7 @@
 import numpy as np
 #import networkx as nx
 #from arena import Arena
-from utils import sigmoid
+from utils import add_delta, sigmoid
 
 
 class Player:
@@ -11,6 +11,8 @@ class Player:
     global_bias = [[0, 0],[0, 0]]    # bias towards thinking that a player is a defector, according to his tag
                                              # Format: [[AA,AB],[BB,BA]]
     FORGETTING_FACTOR = 1
+
+    OLD_BIAS_WEIGHT = 0.9
 
     # ----------------------- MAIN FUNCTIONS ------------------------
 
@@ -142,7 +144,8 @@ class Player:
 
         #print("--- BEFORE ---\n", self.belief)
         #print("Delta: ", delta())
-        self.belief = sigmoid(self.belief * self.FORGETTING_FACTOR + delta()- 0.5)
+        self.belief = add_delta(self.belief, delta(), Player.OLD_BIAS_WEIGHT)
+        #self.belief = sigmoid(self.belief * self.FORGETTING_FACTOR + delta()- 0.5)
         #print("--- AFTER ---\n", self.belief)
 
         if (self.belief > 0.5 and self.tag == 0) or (self.belief < 0.5 and self.tag == 1):

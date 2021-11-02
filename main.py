@@ -13,7 +13,7 @@ def main(num_of_nodes=100):
 	opinions, prejudices = sim.run()
 	
 	statistics.plotPrejudiceByTimestep(prejudices)
-	statistics.showPolarizationBars(opinions)
+	statistics.plotOpinions(opinions)
 
 if __name__ == '__main__':
 	main()
