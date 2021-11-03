@@ -153,7 +153,7 @@ class Player:
         #self.belief = sigmoid(self.belief * self.FORGETTING_FACTOR + delta()- 0.5)
         #print("--- AFTER ---\n", self.belief)
 
-        if (self.belief > 0.5 and self.tag == 0) or (self.belief < 0.5 and self.tag == 1):
+        if (self.belief > 0.5 and self.tag == 0) or (self.belief <= 0.5 and self.tag == 1):
             self.tag = 1 - self.tag
 
     # ---------------------- HELPER FUNCTIONS -----------------------

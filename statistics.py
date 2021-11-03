@@ -135,20 +135,53 @@ def showPolarizationBars(opListList):
 """
 Makes a scatter plot with the current opinions
 """
-def plotOpinions(opListList):
-	X = []
-	Y = []
+def plotAvgBeliefByTimestep(beliefs_by_attempt):
+	fig, ax = plt.subplots(figsize=(8, 5))
+	a_beliefs = []
+	b_beliefs = []
 
-	for i in range(len(opListList)):
-		for val in opListList[i]:
-			# X adds a bit of noise, so numbers dont overlap so quickly!
-			X.append(i + random.uniform(-0.01, 0.01))
-			Y.append(val)
-	
-	plt.figure(figsize=(8, 5))
-	plt.yticks([0, 0.25, 0.5, 0.75, 1])
-	plt.scatter(X, Y, c=Y, cmap='plasma', vmin=0, vmax=1)
-	plt.title("Node belief by timestep")
+	a_plots = ()
+	b_plots = ()
+
+	for attempt in beliefs_by_attempt:
+		avg_a_beliefs_in_attempt = []
+		avg_b_beliefs_in_attempt = []
+		for timestep in attempt:
+			a_beliefs_in_timestep = []	
+			b_beliefs_in_timestep = []
+
+			for belief in timestep:
+				if belief <= 0.5:
+					a_beliefs_in_timestep.append(belief)
+				else:
+					b_beliefs_in_timestep.append(belief)
+
+			avg_a_belief_in_timestep = np.array(a_beliefs_in_timestep).mean(axis=0)
+			avg_b_belief_in_timestep = np.array(b_beliefs_in_timestep).mean(axis=0)
+
+			avg_a_beliefs_in_attempt.append(avg_a_belief_in_timestep)
+			avg_b_beliefs_in_attempt.append(avg_b_belief_in_timestep)
+
+		a_beliefs.append(avg_a_beliefs_in_attempt)
+		b_beliefs.append(avg_b_beliefs_in_attempt)
+
+		p1, = ax.plot(avg_a_beliefs_in_attempt, color='cornflowerblue')
+		p2, = ax.plot(avg_b_beliefs_in_attempt, color='mediumseagreen')
+
+		a_plots += (p1,)
+		b_plots += (p2,)
+
+	#print(a_beliefs)
+
+	avg_a_beliefs = np.array(a_beliefs).mean(axis=0)
+	avg_b_beliefs = np.array(b_beliefs).mean(axis=0)
+
+	avg_a_plt, = ax.plot(avg_a_beliefs, color='black', linestyle='dashed')
+	avg_b_plt, = ax.plot(avg_b_beliefs, color='red', linestyle='dashed')
+
+	plt.title("Average beliefs of the two tags by timestep (attempts = {})".format(len(beliefs_by_attempt)))
+	plt.legend([a_plots, b_plots, avg_a_plt, avg_b_plt], 
+					["Avg. A Belief / Attempt", "Avg. B Belief / Attempt", "Avg. A Belief", "Avg. B Belief"])
 	plt.show()
 
 """
@@ -209,9 +242,10 @@ def plotPrejudiceComparison(matrix):
 	plt.show()
 
 """
-Plots the prejudice for every pair (AA, AB...) by timestep. Receives a list of matrices
+Plots the group bias for every pair (AA, AB...) by timestep, for every attempt.
+Receives a list of attempts, which containe the group bias by timestep.
 """
-def plotPrejudiceByTimestep(biases_by_attempt):
+def plotBiasesByTimestep(biases_by_attempt):
 	fig, ax = plt.subplots(figsize=(8, 5))
 	aa_plots = ()
 	ab_plots = ()
