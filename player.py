@@ -6,24 +6,23 @@ class Player:
 
     # ---------------------- STATIC VARIABLES -----------------------
     network = None              # where all players reside
-    global_bias = [[0.3, 0.5],[0.3, 0.5]]    # bias towards thinking that a player is a defector, according to his tag
-                                             # Format: [[AA,AB],[BB,BA]]
     FORGETTING_FACTOR = 1
 
     OLD_BIAS_WEIGHT = 0.9
 
     # ----------------------- MAIN FUNCTIONS ------------------------
 
-    def __init__(self, arena=None, player_id=None):
+    def __init__(self, arena=None, player_id=None, group_bias=None):
         # Check arguments
         assert arena is not None, TypeError('No arena given.')
         assert player_id is not None, TypeError('No player_id given.')
+        assert group_bias is not None
 
         # Newborn player params
         self.id = player_id
         self.belief = np.random.default_rng().uniform() # Random number between 0 and 1
-        self.bias = Player.global_bias
         self.round_total_payoff = 0
+        self.bias = group_bias
 
         # 0 or 1
         self.tag = round(self.belief)

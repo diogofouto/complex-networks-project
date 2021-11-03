@@ -113,7 +113,7 @@ def showPolarizationBars(opListList):
 	category_colors = plt.get_cmap('RdYlGn')(
 	np.linspace(0.15, 0.85, data.shape[1]))
 
-	fig, ax = plt.subplots(figsize=(9.2, 5))
+	fig, ax = plt.subplots(figsize=(8, 5))
 	ax.invert_yaxis()
 	ax.xaxis.set_visible(False)
 	ax.set_xlim(0, np.sum(data, axis=1).max())
@@ -144,10 +144,11 @@ def plotOpinions(opListList):
 			# X adds a bit of noise, so numbers dont overlap so quickly!
 			X.append(i + random.uniform(-0.01, 0.01))
 			Y.append(val)
-			
-	plt.xticks(range(len(opListList)))
-	plt.yticks([0,0.25,0.5,0.75,1])
-	plt.scatter(X,Y,c=Y,cmap='plasma',vmin=0,vmax=1)
+	
+	plt.figure(figsize=(8, 5))
+	plt.yticks([0, 0.25, 0.5, 0.75, 1])
+	plt.scatter(X, Y, c=Y, cmap='plasma', vmin=0, vmax=1)
+	plt.title("Node belief by timestep")
 	plt.show()
 
 """
@@ -210,27 +211,61 @@ def plotPrejudiceComparison(matrix):
 """
 Plots the prejudice for every pair (AA, AB...) by timestep. Receives a list of matrices
 """
-def plotPrejudiceByTimestep(matrices):
-	AA = []
-	AB = []
-	BA = []
-	BB = []
+def plotPrejudiceByTimestep(biases_by_attempt):
+	fig, ax = plt.subplots(figsize=(8, 5))
+	aa_plots = ()
+	ab_plots = ()
+	ba_plots = ()
+	bb_plots = ()
 
-	for matrix in matrices:
-		AA.append(matrix[0][0])
-		AB.append(matrix[0][1])
-		BB.append(matrix[1][0])
-		BA.append(matrix[1][1])
+	all_aa = []
+	all_ab = []
+	all_ba = []
+	all_bb = []
 
-	timesteps = [i for i in range(1,len(matrices)+1)]
+	timesteps = [i for i in range(len(biases_by_attempt[0]))]
 
-	fig, ax = plt.subplots()
-	ax.plot(timesteps, AA, label="AA")
-	ax.plot(timesteps, AB, label="AB")
-	ax.plot(timesteps, BA, label="BA")
-	ax.plot(timesteps, BB, label="BB")
-	ax.legend()
+	for attempt in biases_by_attempt:
+		aa = []
+		ab = []
+		ba = []
+		bb = []
 
+		for matrix in attempt:
+			aa.append(matrix[0][0])
+			ab.append(matrix[0][1])
+			bb.append(matrix[1][0])
+			ba.append(matrix[1][1])
+
+		all_aa.append(aa)
+		all_ab.append(ab)
+		all_ba.append(ba)
+		all_bb.append(bb)
+
+		p1, = ax.plot(timesteps, aa, color='darkslateblue')
+		p2, = ax.plot(timesteps, ab, color='mediumslateblue')
+		p3, = ax.plot(timesteps, ba, color='crimson')
+		p4, = ax.plot(timesteps, bb, color='red')
+
+		aa_plots += (p1,)
+		ab_plots += (p2,)
+		ba_plots += (p3,)
+		bb_plots += (p4,)
+
+	mean_aa = np.array(all_aa).mean(axis=0)
+	mean_ab = np.array(all_ab).mean(axis=0)
+	mean_ba = np.array(all_ba).mean(axis=0)
+	mean_bb = np.array(all_bb).mean(axis=0)
+
+	avg_aa, = ax.plot(timesteps, mean_aa, color='yellow', linestyle='dashed')
+	avg_ab, = ax.plot(timesteps, mean_ab, color='magenta', linestyle='dashed')
+	avg_ba, = ax.plot(timesteps, mean_ba, color='orange', linestyle='dashed')
+	avg_bb, = ax.plot(timesteps, mean_bb, color='lawngreen', linestyle='dashed')
+
+	ax.legend([aa_plots, ab_plots, ba_plots, bb_plots, avg_aa, avg_ab, avg_ba, avg_bb], 
+					['AA', 'AB', 'BA', 'BB', 'Avg. AA', 'Avg. AB', 'Avg. BA', 'Avg. BB'])
+
+	plt.title("Group bias between tags by timestep (attempts = {})".format(len(biases_by_attempt)))
+	
 	plt.yticks([i * 0.1 for i in range(11)])
-
 	plt.show()

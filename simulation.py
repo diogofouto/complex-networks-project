@@ -1,4 +1,3 @@
-import networkx as nx
 from arena import Arena
 from player import Player
 
@@ -11,56 +10,35 @@ class Simulation:
 		self.num_attempts = num_attempts
 		self.num_timesteps = num_timesteps
 
-		# Statistics
-		self.opinions = []      # A list of dictionaries for each timestep, with opinions for each id
-		self.prejudices = []    # A list of dictionaries for each timestep, with prejudice for each pair
-								# That is, the table P for AA, AB, BA and BB
-
-
 	def run(self):
+		beliefs = []	# A list of dictionaries for each timestep, with beliefs for each id
+		biases = []		# A list of dictionaries for each timestep, with prejudice for each pair
+						# That is, the table P for AA, AB, BA and BB
+
 		for i in range(self.num_attempts):
 			print('Starting simulation attempt {}...'.format(i))
-			self.run_attempt(i)
+			attempt_beliefs, attempt_biases = self.run_attempt(i)
 			print('Simulation attempt {} completed successfully!'.format(i))
 
-		return self.opinions, self.prejudices[0]
+			beliefs.append(attempt_beliefs)
+			biases.append(attempt_biases)
+
+		return beliefs, biases
 
 
 	def run_attempt(self, attempt_no=0):
-		def draw_run_graph():
-			color_map = []
-			for opinion in opinions[-1]:
-				if round(opinion) == 0:
-					color_map.append('blue')
-				else:
-					color_map.append('red')
-
-			# Draw Visualization
-			nx.draw(self.arena.G, node_color=color_map)
-
 		def create_players():
 			print('Creating players...')
+
 			for i in self.arena.G.nodes():
-				self.arena.G.nodes[i]['player'] = Player(arena = self.arena, player_id=i)
+				self.arena.G.nodes[i]['player'] = Player(arena = self.arena, player_id=i, group_bias=Arena.INIT_GLOBAL_BIAS)
+
 			print('Players created!')
 
-		# Copy and save arena
 		self.arena = Arena(self.G.copy())
 		Player.arena = self.arena
 
 		create_players()
 
 		# Run attempt for num_timesteps
-		opinions, biases = self.arena.run(num_timesteps=self.num_timesteps)
-
-		self.opinions = opinions
-		self.prejudices.append(biases)
-
-		draw_run_graph()
-
-		# Show statistics
-		#print("OPINIONS:")
-		print(opinions, '\n')
-
-		#print("BIASES:")
-		print(biases, '\n')
+		return self.arena.run(num_timesteps=self.num_timesteps)
