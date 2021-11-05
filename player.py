@@ -8,7 +8,7 @@ class Player:
     network = None              # where all players reside
     FORGETTING_FACTOR = 1
 
-    OLD_BIAS_WEIGHT = 0.9
+    OLD_BIAS_WEIGHT = 0.95
 
     # ----------------------- MAIN FUNCTIONS ------------------------
 
