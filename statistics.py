@@ -303,3 +303,51 @@ def plotBiasesByTimestep(biases_by_attempt):
 	
 	plt.yticks([i * 0.1 for i in range(11)])
 	plt.show()
+
+def plot_players_by_tag_by_timestep(beliefs_by_attempt):
+	fig, ax = plt.subplots(figsize=(8, 5))
+	a_beliefs = []
+	b_beliefs = []
+
+	a_plots = ()
+	b_plots = ()
+
+	for attempt in beliefs_by_attempt:
+		a_beliefs_in_attempt = []
+		b_beliefs_in_attempt = []
+		for timestep in attempt:
+			a_beliefs_in_timestep = 0
+			b_beliefs_in_timestep = 0
+
+			for belief in timestep:
+				if belief <= 0.5:
+					a_beliefs_in_timestep += 1
+				else:
+					b_beliefs_in_timestep += 1
+
+			a_beliefs_in_attempt.append(a_beliefs_in_timestep)
+			b_beliefs_in_attempt.append(b_beliefs_in_timestep)
+
+		a_beliefs.append(a_beliefs_in_attempt)
+		b_beliefs.append(b_beliefs_in_attempt)
+
+		p1, = ax.plot(a_beliefs_in_attempt, color='cornflowerblue')
+		p2, = ax.plot(b_beliefs_in_attempt, color='mediumseagreen')
+
+		a_plots += (p1,)
+		b_plots += (p2,)
+
+	#print(a_beliefs)
+
+	avg_a_beliefs = np.array(a_beliefs).mean(axis=0)
+	avg_b_beliefs = np.array(b_beliefs).mean(axis=0)
+
+	avg_a_plt, = ax.plot(avg_a_beliefs, color='black', linestyle='dashed')
+	avg_b_plt, = ax.plot(avg_b_beliefs, color='red', linestyle='dashed')
+
+	plt.title("Average beliefs of the two tags by timestep (attempts = {})".format(len(beliefs_by_attempt)))
+	plt.legend([a_plots, b_plots, avg_a_plt, avg_b_plt], 
+					["Players with Belief A", "Players with Belief B",
+						"Avg. Nr. of Players w/ Belief A",
+							"Avg. Nr. of Players w/ Belief B"])
+	plt.show()
