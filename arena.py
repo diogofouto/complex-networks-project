@@ -6,7 +6,7 @@ from utils import add_delta
 from networkx.classes.graph import Graph
 
 class Arena(simpy.Environment):
-    INIT_GLOBAL_BIAS = [[0.7, 0], [0, 0]] # bias towards thinking that a player is a defector, according to his tag
+    INIT_GLOBAL_BIAS = [[0, 0], [0, 0]] # bias towards thinking that a player is a defector, according to his tag
 
     def __init__(self, topology: Graph):
         super().__init__(initial_time=0)

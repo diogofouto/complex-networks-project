@@ -100,8 +100,6 @@ def showPolarizationBars(opListList):
 				split[3] += 1
 			else:
 				split[4] += 1
-			print(op, split)
-		print(i)
 		results["Timestep "+str(i)] = split
 
 	category_names = ['Strongly attached to A', 'Weakly attached to A', 'Not defined',
@@ -171,7 +169,6 @@ def plotAvgBeliefByTimestep(beliefs_by_attempt):
 		a_plots += (p1,)
 		b_plots += (p2,)
 
-	#print(a_beliefs)
 
 	avg_a_beliefs = np.array(a_beliefs).mean(axis=0)
 	avg_b_beliefs = np.array(b_beliefs).mean(axis=0)
@@ -337,15 +334,13 @@ def plot_players_by_tag_by_timestep(beliefs_by_attempt):
 		a_plots += (p1,)
 		b_plots += (p2,)
 
-	#print(a_beliefs)
-
 	avg_a_beliefs = np.array(a_beliefs).mean(axis=0)
 	avg_b_beliefs = np.array(b_beliefs).mean(axis=0)
 
 	avg_a_plt, = ax.plot(avg_a_beliefs, color='black', linestyle='dashed')
 	avg_b_plt, = ax.plot(avg_b_beliefs, color='red', linestyle='dashed')
 
-	plt.title("Average beliefs of the two tags by timestep (attempts = {})".format(len(beliefs_by_attempt)))
+	plt.title("Average number of players of each tag by timestep (attempts = {})".format(len(beliefs_by_attempt)))
 	plt.legend([a_plots, b_plots, avg_a_plt, avg_b_plt], 
 					["Players with Belief A", "Players with Belief B",
 						"Avg. Nr. of Players w/ Belief A",

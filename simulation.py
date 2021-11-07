@@ -26,7 +26,7 @@ class Simulation:
 		return beliefs, biases
 
 
-	def run_attempt(self, attempt_no=0):
+	def run_attempt(self):
 		def create_players():
 			print('Creating players...')
 

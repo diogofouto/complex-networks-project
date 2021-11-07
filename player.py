@@ -6,7 +6,6 @@ class Player:
 
     # ---------------------- STATIC VARIABLES -----------------------
     network = None              # where all players reside
-    FORGETTING_FACTOR = 1
 
     OLD_BIAS_WEIGHT = 0.95
 
@@ -69,18 +68,10 @@ class Player:
         # --------------------- ACTUAL FUNCTION ----------------------
 
         # Each node chooses its tactic
-        #print("\nStarting game between",self.id,"and",other_player.id)
-        #print(self.id,"'s stats are:")
-        #print(self.belief)
-        #print(other_player.id,"'s stats are:")
-        #print(other_player.belief)
         own_choice, other_choice = choose_tactics()
-        #print("Tatics chosen:",own_choice,other_choice)
 
         # Compute the payoff from playing with the other node
         own_payoff, other_payoff = compute_payoffs()
-        #print(self.id,"'s payoff is:", own_payoff)
-        #print(other_player.id,"'s payoff is:", other_payoff)
 
 
         update_counts_for_bias_update()
@@ -135,23 +126,13 @@ class Player:
 
     def update_belief(self):
         def delta():
-            #print("Own tag count:", self.own_tag_count)
-            #print("Other tag count:", self.other_tag_count)
-            #print("Own tag inv_payoff:", self.own_tag_inv_payoff)
-            #print("Other tag inv_payoff:", self.other_tag_inv_payoff)
-            #print("Own tag collabs:", self.own_tag_cooperators)
-            #print("Other tag collabs:", self.other_tag_cooperators)
             if (self.other_tag_count == 0):
                 return - (1 / self.own_tag_count) * self.own_tag_inv_payoff
             elif (self.own_tag_count == 0):
                 return (1 / self.other_tag_count) * self.other_tag_inv_payoff
             return (1 / self.other_tag_count) * self.other_tag_inv_payoff - (1 / self.own_tag_count) * self.own_tag_inv_payoff
 
-        #print("--- BEFORE ---\n", self.belief)
-        #print("Delta: ", delta())
         self.belief = add_delta(self.belief, delta(), Player.OLD_BIAS_WEIGHT)
-        #self.belief = sigmoid(self.belief * self.FORGETTING_FACTOR + delta()- 0.5)
-        #print("--- AFTER ---\n", self.belief)
 
         if (self.belief > 0.5 and self.tag == 0) or (self.belief <= 0.5 and self.tag == 1):
             self.tag = 1 - self.tag
@@ -212,8 +193,6 @@ class Player:
     # ---------------------- MAIN RUNNING FUNCTION -----------------------
 
     def run(self):
-        #! Should this really be while True?
         while True:
             self.play_with_neighbour()
-            #! Is the below line correct?
             yield self.env.timeout(1) # each interaction takes 1 timestep
