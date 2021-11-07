@@ -17,7 +17,7 @@ class Simulation:
 
 		for i in range(self.num_attempts):
 			print('Starting simulation attempt {}...'.format(i))
-			attempt_beliefs, attempt_biases = self.run_attempt(i)
+			attempt_beliefs, attempt_biases = self.run_attempt()
 			print('Simulation attempt {} completed successfully!'.format(i))
 
 			beliefs.append(attempt_beliefs)
