@@ -6,13 +6,13 @@ By Alexandre Pires - 92414, Diogo Fouto - 93705 and João Fonseca - 92497
 
 The code is organized as follows:
 
-- main.p:   This is where each component is called, from making the graph, running the simulation, and printing results. 
-            Here, the graph is generated, making the rest of our code agnostic to the type of graph given.
+- main.p:   This is where each main component is called: making the graph, running the simulation, and printing results. 
+            Here, the graph is generated, as our code agnostic to the type of graph given.
             A new simulation is made using the given topology, using a given numbers of timesteps and attempts.
             The simulation is ran, returning lists of individual opinions and group biases, by attempt and by timestep.
             The results are then using to print plots, using the methods made in statistics.py.
 
-- simulation.py:    This component is used almost as a facade for the arena, making it easier to run any given number of 
+- simulation.py:    This component is used as a facade for the arena, making it easier to run any given number of 
                     attempts of the simulation. It is also responsible for making instances of the player class associated
                     with each node in the graph, and running the simulation afterwards, using the Arena component.
                     The individual and community biases obtained for each timestep, of each attempt, are then sent back to main. 
