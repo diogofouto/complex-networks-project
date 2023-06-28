@@ -1,8 +1,8 @@
-CRC Project - Community Building and Segregation through Prisoner's Dilemma - Source Code
+# CRC Project - Community Building and Segregation through Prisoner's Dilemma - Source Code
 
 By Alexandre Pires - 92414, Diogo Fouto - 93705 and João Fonseca - 92497
 
--------------- CODE STRUCTURE ------------
+# Code Structure
 
 The code is organized as follows:
 
@@ -42,7 +42,7 @@ AA-AB-BB-BA X, where X is related to the specific plot at hand: X=1 for communit
 and X=3 for average number of players in each tag.
 
 
---------- RUNNING INSTRUCTIONS ------------
+# Instruction
 
 The following packages are needed to correctly run the project, the following python3 packages are needed:
 networkx, numpy, matplotlib, simpy.
