@@ -29,7 +29,7 @@ In order to run the code, `main.py` can simply be executed without no additional
 
 In order to customize the simulation, the following variables can be ajusted:
 
-- main.py:
+- `main.py`:
     - `num_of_nodes`: The number of nodes the generated graph should have. Default: 1000
     - `G`: The type of graph to be made, where any networkx undirected graph can be used. Default: barabasi_albert with avg_deg = 6
     - `num_attempts`: The number of repetitions for the simulation, to achieve statistical relevance. Default: 30
