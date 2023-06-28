@@ -6,7 +6,7 @@ By Alexandre Pires - 92414, Diogo Fouto - 93705 and João Fonseca - 92497
 
 The code is organized as follows:
 
-- main.p:   This is where each main component is called: making the graph, running the simulation, and printing results. 
+- main.py:   This is where each main component is called: making the graph, running the simulation, and printing results. 
             Here, the graph is generated, as our code agnostic to the type of graph given.
             A new simulation is made using the given topology, using a given numbers of timesteps and attempts.
             The simulation is ran, returning lists of individual opinions and group biases, by attempt and by timestep.
